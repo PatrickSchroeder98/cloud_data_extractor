@@ -1,4 +1,5 @@
 from src.core.firestoreconnection import FirestoreConnection
+from src.exceptions.exceptions import CredentialsError
 
 
 class CloudDataExtractor:
@@ -21,9 +22,12 @@ class CloudDataExtractor:
 
         self.set_firestore_connection(path)
         success = self.__firestore_connection.certificate_credentials()
-
-        if success:
-            return self.__firestore_connection.get_credentials()
-        else:
-            #TODO exception
-            return None
+        try:
+            if success:
+                return self.__firestore_connection.get_credentials()
+            else:
+                raise CredentialsError()
+        except CredentialsError as e:
+                print(e.get_message())
+                print("Error code: " + e.get_code())
+                return None
