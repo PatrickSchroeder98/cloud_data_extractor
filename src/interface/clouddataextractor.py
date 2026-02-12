@@ -1,5 +1,5 @@
 from src.core.firestoreconnection import FirestoreConnection
-from src.exceptions.exceptions import CredentialsError
+from src.exceptions.exceptions import CredentialsError, DBError
 
 
 class CloudDataExtractor:
@@ -31,3 +31,20 @@ class CloudDataExtractor:
                 print(e.get_message())
                 print("Error code: " + e.get_code())
                 return None
+
+    def initialize_app(self, credentials):
+        """Method for initializing the application."""
+        self.__firestore_connection.initialize_firestore(credentials)
+
+    def db_client(self):
+        """Method for getting the firestore database client."""
+        success = self.__firestore_connection.db_client()
+        try:
+            if success:
+                return self.__firestore_connection.get_db()
+            else:
+                raise DBError()
+        except DBError as e:
+            print(e.get_message())
+            print("Error code: " + e.get_code())
+            return None
