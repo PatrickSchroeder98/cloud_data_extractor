@@ -1,34 +1,47 @@
-import datetime
+import logging
 import os
+from pathlib import Path
 
 
 class Log:
-    """Class for logging functionality."""
+    """Logging wrapper around Python logging module."""
 
-    def __init__(self):
-        """Constructor for Log class initializes the path."""
-        self.__path = "log/log.txt"
-        self.create_path()
-
-    def set_path(self, path):
-        """Method for setting the path of logging."""
+    def __init__(self, path: str = "log/logs.log"):
         self.__path = path
+        self.__logger = None
+        self._configure()
 
-    def get_path(self):
-        """Method for getting the path of logging."""
-        return self.__path
+    def _configure(self):
+        log_path = Path(self.__path)
 
-    def create_path(self):
-        """Method for creating the path of logging."""
-        if not os.path.exists(self.__path):
-            os.makedirs(os.path.dirname(self.__path))
+        # Create directory ONLY
+        log_path.parent.mkdir(parents=True, exist_ok=True)
 
-    def log(self, message):
-        """Method for logging message."""
-        with open(self.get_path(), "a") as file:
-            now = self.get_now()
-            file.write(now + " " + message + '\n')
+        self.__logger = logging.getLogger("Cloud Data Extractor")
+        self.__logger.setLevel(logging.INFO)
 
-    def get_now(self):
-        """Method for getting the current time."""
-        return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        if not self.__logger.handlers:
+            handler = logging.FileHandler(
+                self.__path,
+                encoding="utf-8"
+            )
+
+            formatter = logging.Formatter(
+                "%(asctime)s | %(levelname)s | %(message)s",
+                datefmt="%Y-%m-%d %H:%M:%S"
+            )
+
+            handler.setFormatter(formatter)
+            self.__logger.addHandler(handler)
+
+    def info(self, message: str):
+        self.__logger.info(message)
+
+    def warning(self, message: str):
+        self.__logger.warning(message)
+
+    def error(self, message: str):
+        self.__logger.error(message)
+
+    def debug(self, message: str):
+        self.__logger.debug(message)
