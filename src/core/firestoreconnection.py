@@ -1,6 +1,7 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
 from google.auth.exceptions import DefaultCredentialsError
+from src.core.log import Log
 
 class FirestoreConnection:
     """Class that handles firestore connection."""
@@ -10,6 +11,7 @@ class FirestoreConnection:
         self.__path = path
         self.__credentials = None
         self.__db = None
+        self.log = Log()
 
     def set_path(self, path):
         """Method for setting the path of firestore connection."""
@@ -40,25 +42,32 @@ class FirestoreConnection:
         try:
             self.__credentials = credentials.Certificate(self.get_path())
         except FileNotFoundError:
+            self.log.error("File with credentials not found!")
             print("File with credentials not found!")
             self.__credentials = None
             return False
         except PermissionError:
+            self.log.error("File with credentials returned PermissionError!")
             print("File with credentials returned PermissionError!")
             self.__credentials = None
             return False
         else:
+            self.log.info("File with credentials loaded successfully!")
             return True
 
     def initialize_firestore(self, cred):
         """Method for initializing firestore connection."""
+        self.log.info("Initializing firestore connection...")
         firebase_admin.initialize_app(cred)
 
     def db_client(self):
         """Method for getting the firestore database client."""
         try:
             self.set_db(firestore.client())
-            return True
         except DefaultCredentialsError:
+            self.log.error("Credentials returned DefaultCredentialsError!")
             print("Credentials returned DefaultCredentialsError!")
             return False
+        else:
+            self.log.info("Firestore database client initialized successfully!")
+            return True
