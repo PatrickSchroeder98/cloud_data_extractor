@@ -6,11 +6,13 @@ from src.core.log import Log
 class FirestoreConnection:
     """Class that handles firestore connection."""
 
-    def __init__(self, path):
+    def __init__(self, path, collection_name):
         """Method for initializing firestore connection."""
         self.__path = path
         self.__credentials = None
         self.__db = None
+        self.__collection_name = collection_name
+        self.__results = None
         self.log = Log()
 
     def set_path(self, path):
@@ -36,6 +38,22 @@ class FirestoreConnection:
     def get_db(self):
         """Method for getting the database of firestore connection."""
         return self.__db
+
+    def set_collection_name(self, collection_name):
+        """Method for setting the collection name."""
+        self.__collection_name = collection_name
+
+    def get_collection_name(self):
+        """Method for getting the collection name."""
+        return self.__collection_name
+
+    def set_results(self, results):
+        """Method for setting the results of firestore connection."""
+        self.__results = results
+
+    def get_results(self):
+        """Method for getting the results of firestore connection."""
+        return self.__results
 
     def certificate_credentials(self):
         """Method for getting the firestore connection credentials."""
@@ -70,4 +88,15 @@ class FirestoreConnection:
             return False
         else:
             self.log.info("Firestore database client initialized successfully!")
+            return True
+
+    def save_collection(self):
+        """Method for getting the firestore collection."""
+        try:
+            self.set_results(self.get_db().collection(self.get_collection_name()).get())
+        except AttributeError as e:
+            self.log.error("Error! DB object is None.")
+            print("Error! DB object is None.")
+            return False
+        else:
             return True
