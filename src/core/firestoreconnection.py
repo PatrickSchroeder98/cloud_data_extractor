@@ -13,7 +13,7 @@ class FirestoreConnection:
         self.__db = None
         self.__collection_name = collection_name
         self.__results = None
-        self.log = Log()
+        self.__log = Log()
 
     def set_path(self, path):
         """Method for setting the path of firestore connection."""
@@ -60,22 +60,22 @@ class FirestoreConnection:
         try:
             self.__credentials = credentials.Certificate(self.get_path())
         except FileNotFoundError:
-            self.log.error("File with credentials not found!")
+            self.__log.error("File with credentials not found!")
             print("File with credentials not found!")
             self.__credentials = None
             return False
         except PermissionError:
-            self.log.error("File with credentials returned PermissionError!")
+            self.__log.error("File with credentials returned PermissionError!")
             print("File with credentials returned PermissionError!")
             self.__credentials = None
             return False
         else:
-            self.log.info("File with credentials loaded successfully!")
+            self.__log.info("File with credentials loaded successfully!")
             return True
 
     def initialize_firestore(self, cred):
         """Method for initializing firestore connection."""
-        self.log.info("Initializing firestore connection...")
+        self.__log.info("Initializing firestore connection...")
         firebase_admin.initialize_app(cred)
 
     def db_client(self):
@@ -83,11 +83,11 @@ class FirestoreConnection:
         try:
             self.set_db(firestore.client())
         except DefaultCredentialsError:
-            self.log.error("Credentials returned DefaultCredentialsError!")
+            self.__log.error("Credentials returned DefaultCredentialsError!")
             print("Credentials returned DefaultCredentialsError!")
             return False
         else:
-            self.log.info("Firestore database client initialized successfully!")
+            self.__log.info("Firestore database client initialized successfully!")
             return True
 
     def save_collection(self):
@@ -95,7 +95,7 @@ class FirestoreConnection:
         try:
             self.set_results(self.get_db().collection(self.get_collection_name()).get())
         except AttributeError as e:
-            self.log.error("Error! DB object is None.")
+            self.__log.error("Error! DB object is None.")
             print("Error! DB object is None.")
             return False
         else:

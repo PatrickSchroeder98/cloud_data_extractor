@@ -2,7 +2,7 @@ class CredentialsError(Exception):
     """Exception raised for errors when credentials are invalid."""
 
     def __init__(
-        self, message="Provided credentials returned error.", code="CR_INVALID_001"
+        self, message="Provided credentials returned error.", code="CREDENTIALS_INVALID_001"
     ):
         """Setting custom exception message."""
         self.message = message

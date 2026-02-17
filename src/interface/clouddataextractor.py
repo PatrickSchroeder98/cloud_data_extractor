@@ -1,5 +1,6 @@
 from src.core.firestoreconnection import FirestoreConnection
 from src.exceptions.exceptions import CredentialsError, DBError
+from src.core.log import Log
 
 
 class CloudDataExtractor:
@@ -8,19 +9,19 @@ class CloudDataExtractor:
     def __init__(self):
         """Constructor for CloudDataExtractor initializes firestore_connection with None."""
         self.__firestore_connection = None
+        self.log = Log()
 
-    def set_firestore_connection(self, path):
+    def set_firestore_connection(self, path, collection_name):
         """Method for setting the firestore connection."""
-        self.__firestore_connection = FirestoreConnection(path)
+        self.__firestore_connection = FirestoreConnection(path, collection_name)
 
     def get_firestore_connection(self):
         """Method for getting the firestore connection."""
         return self.__firestore_connection
 
-    def certificate_credentials(self, path):
+    def certificate_credentials(self):
         """Method for certificating the firestore credentials."""
 
-        self.set_firestore_connection(path)
         success = self.__firestore_connection.certificate_credentials()
         try:
             if success:
@@ -28,8 +29,8 @@ class CloudDataExtractor:
             else:
                 raise CredentialsError()
         except CredentialsError as e:
-                print(e.get_message())
-                print("Error code: " + e.get_code())
+                self.log.error(e.get_message())
+                self.log.error("Error code: " + e.get_code())
                 return None
 
     def initialize_app(self, credentials):
@@ -45,6 +46,19 @@ class CloudDataExtractor:
             else:
                 raise DBError()
         except DBError as e:
-            print(e.get_message())
-            print("Error code: " + e.get_code())
+            self.log.error(e.get_message())
+            self.log.error("Error code: " + e.get_code())
             return None
+
+    def db_get_collection(self):
+        """Interface method for getting the firestore database collection."""
+        return self.__firestore_connection.get_results()
+
+    def extract_data(self, path, collection_name):
+        """Method for extracting data from Firestore documents."""
+        self.set_firestore_connection(path, collection_name)
+        cred = self.certificate_credentials()
+        self.initialize_app(cred)
+        self.db_client()
+        self.__firestore_connection.save_collection()
+        return self.db_get_collection()
