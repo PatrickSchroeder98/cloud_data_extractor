@@ -5,40 +5,52 @@ from src.exceptions.exceptions import CredentialsError, DBError
 class TestExceptions(unittest.TestCase):
     """Class to test exceptions raised by application."""
 
+    def setUp(self):
+        self.messages_and_codes = {
+            "CredentialsError": {
+                "message": "Provided credentials returned error.",
+                "code": "CREDENTIALS_INVALID_001"
+            },
+            "DBError": {
+                "message": "DB connection error.",
+                "code": "DB_CONNECTION_ERROR_002"
+            }
+        }
+
     def test_CredentialsError_init(self):
         """Method to test CredentialsError Exception initialization."""
         e = CredentialsError()
-        self.assertEqual(e.message, "Provided credentials returned error.")
-        self.assertEqual(e.code, "CREDENTIALS_INVALID_001")
+        self.assertEqual(e.message, self.messages_and_codes["CredentialsError"]["message"])
+        self.assertEqual(e.code, self.messages_and_codes["CredentialsError"]["code"])
         del e
 
     def test_CredentialsError_get_message(self):
         """Method to test CredentialsError Exception get_message method."""
         e = CredentialsError()
-        self.assertEqual(e.get_message(), "Provided credentials returned error.")
+        self.assertEqual(e.get_message(), self.messages_and_codes["CredentialsError"]["message"])
         del e
 
     def test_CredentialsError_get_code(self):
         """Method to test CredentialsError Exception get_code method."""
         e = CredentialsError()
-        self.assertEqual(e.get_code(), "CREDENTIALS_INVALID_001")
+        self.assertEqual(e.get_code(), self.messages_and_codes["CredentialsError"]["code"])
         del e
 
     def test_DBError_init(self):
         """Method to test DBError Exception initialization."""
         e = DBError()
-        self.assertEqual(e.message, "DB connection error.")
-        self.assertEqual(e.code, "DB_CONNECTION_ERROR_002")
+        self.assertEqual(e.message, self.messages_and_codes["DBError"]["message"])
+        self.assertEqual(e.code, self.messages_and_codes["DBError"]["code"])
         del e
 
     def test_DBError_get_message(self):
         """Method to test DBError Exception get_message method."""
         e = DBError()
-        self.assertEqual(e.get_message(), "DB connection error.")
+        self.assertEqual(e.get_message(), self.messages_and_codes["DBError"]["message"])
         del e
 
     def test_DBError_get_code(self):
         """Method to test DBError Exception get_code method."""
         e = DBError()
-        self.assertEqual(e.get_code(), "DB_CONNECTION_ERROR_002")
+        self.assertEqual(e.get_code(), self.messages_and_codes["DBError"]["code"])
         del e
