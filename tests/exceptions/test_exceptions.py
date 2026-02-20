@@ -1,5 +1,5 @@
 import unittest
-from src.exceptions.exceptions import CredentialsError, DBError
+from src.exceptions.exceptions import CredentialsError, DBError, CollectionIsNone
 
 
 class TestExceptions(unittest.TestCase):
@@ -14,6 +14,10 @@ class TestExceptions(unittest.TestCase):
             "DBError": {
                 "message": "DB connection error.",
                 "code": "DB_CONNECTION_ERROR_002"
+            },
+            "CollectionIsNone": {
+                "message": "Collection is None, check the credentials and connection.",
+                "code": "COLLECTION_NONE_ERROR_003"
             }
         }
 
@@ -53,4 +57,23 @@ class TestExceptions(unittest.TestCase):
         """Method to test DBError Exception get_code method."""
         e = DBError()
         self.assertEqual(e.get_code(), self.messages_and_codes["DBError"]["code"])
+        del e
+
+    def test_CollectionIsNone_init(self):
+        """Method to test CollectionIsNone Exception initialization."""
+        e = CollectionIsNone()
+        self.assertEqual(e.message, self.messages_and_codes["CollectionIsNone"]["message"])
+        self.assertEqual(e.code, self.messages_and_codes["CollectionIsNone"]["code"])
+        del e
+
+    def test_CollectionIsNone_get_message(self):
+        """Method to test CollectionIsNone Exception get_message method."""
+        e = CollectionIsNone()
+        self.assertEqual(e.get_message(), self.messages_and_codes["CollectionIsNone"]["message"])
+        del e
+
+    def test_CollectionIsNone_get_code(self):
+        """Method to test CollectionIsNone Exception get_code method."""
+        e = CollectionIsNone()
+        self.assertEqual(e.get_code(), self.messages_and_codes["CollectionIsNone"]["code"])
         del e
