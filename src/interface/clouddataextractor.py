@@ -1,5 +1,5 @@
 from src.core.firestoreconnection import FirestoreConnection
-from src.exceptions.exceptions import CredentialsError, DBError
+from src.exceptions.exceptions import CredentialsError, DBError, CollectionIsNone
 from src.core.log import Log
 
 
@@ -9,7 +9,7 @@ class CloudDataExtractor:
     def __init__(self):
         """Constructor for CloudDataExtractor initializes firestore_connection with None."""
         self.__firestore_connection = None
-        self.log = Log()
+        self.__log = Log()
 
     def set_firestore_connection(self, path, collection_name):
         """Method for setting the firestore connection."""
@@ -29,8 +29,8 @@ class CloudDataExtractor:
             else:
                 raise CredentialsError()
         except CredentialsError as e:
-                self.log.error(e.get_message())
-                self.log.error("Error code: " + e.get_code())
+                self.__log.error(e.get_message())
+                self.__log.error("Error code: " + e.get_code())
                 return None
 
     def initialize_app(self, credentials):
@@ -46,13 +46,27 @@ class CloudDataExtractor:
             else:
                 raise DBError()
         except DBError as e:
-            self.log.error(e.get_message())
-            self.log.error("Error code: " + e.get_code())
+            self.__log.error(e.get_message())
+            self.__log.error("Error code: " + e.get_code())
             return None
 
     def db_get_collection(self):
         """Interface method for getting the firestore database collection."""
         return self.__firestore_connection.get_results()
+
+    def extract_collection(self):
+        """Interface method for saving the firestore collection."""
+        success = self.__firestore_connection.save_collection()
+
+        try:
+            if success:
+                return self.db_get_collection()
+            else:
+                raise CollectionIsNone()
+        except CollectionIsNone as e:
+            self.__log.error(e.get_message())
+            self.__log.error("Error code: " + e.get_code())
+            return None
 
     def extract_data(self, path, collection_name):
         """Method for extracting data from Firestore documents."""
@@ -60,5 +74,4 @@ class CloudDataExtractor:
         cred = self.certificate_credentials()
         self.initialize_app(cred)
         self.db_client()
-        self.__firestore_connection.save_collection()
-        return self.db_get_collection()
+        return self.extract_collection()

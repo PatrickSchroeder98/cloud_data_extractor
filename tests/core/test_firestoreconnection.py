@@ -7,13 +7,21 @@ class TestFirestoreConnection(unittest.TestCase):
 
     def test_init(self):
         """Method tests the initialization of a class"""
-        firestore_connection = FirestoreConnection("example_path")
+        firestore_connection = FirestoreConnection("example_path", "example_collection")
 
         path = "example_path"
         credentials = None
+        db = None
+        collection = "example_collection"
+        results = None
 
         self.assertEqual(firestore_connection.get_path(), path)
-        self.assertEqual(firestore_connection.credentials, credentials)
+        self.assertEqual(firestore_connection.get_credentials(), credentials)
+        self.assertEqual(firestore_connection.get_db(), db)
+        self.assertEqual(firestore_connection.get_collection_name(), collection)
+        self.assertEqual(firestore_connection.get_results(), results)
+
+        del firestore_connection
 
     def test_set_path(self):
         """Method tests the setting the path of firestore connection."""
