@@ -80,4 +80,38 @@ class TestFirestoreConnection(unittest.TestCase):
 
         del firestore_connection
 
-    
+    def test_set_collection(self):
+        """Method tests the setting the collection attribute."""
+        firestore_connection = FirestoreConnection("example_path", "example_collection")
+        collection = "example_collection_test"
+
+        firestore_connection.set_collection_name(collection)
+        self.assertEqual(firestore_connection.get_collection_name(), collection)
+
+        del firestore_connection
+
+    def test_get_collection(self):
+        """Method tests the getting the collection attribute."""
+        firestore_connection = FirestoreConnection("example_path", "example_collection")
+
+        self.assertEqual(firestore_connection.get_collection_name(), "example_collection")
+
+        del firestore_connection
+
+    def test_set_results(self):
+        """Method tests the setting the results attribute."""
+        firestore_connection = FirestoreConnection("example_path", "example_collection")
+        results = "Example Results"
+
+        firestore_connection.set_results(results)
+        self.assertEqual(firestore_connection.get_results(), results)
+
+        del firestore_connection
+
+    def test_get_results(self):
+        """Method tests the getting the results attribute."""
+        firestore_connection = FirestoreConnection("example_path", "example_collection")
+
+        self.assertEqual(firestore_connection.get_results(), None)
+
+        del firestore_connection
