@@ -115,3 +115,37 @@ class TestFirestoreConnection(unittest.TestCase):
         self.assertEqual(firestore_connection.get_results(), None)
 
         del firestore_connection
+
+    @patch("src.core.firestoreconnection.credentials.Certificate")
+    @patch("src.core.firestoreconnection.Log")
+    def test_certificate_credentials_file_not_found(self, mock_log_class, mock_certificate):
+        """Method tests the certificate credentials method when it raises FileNotFoundError exception."""
+        mock_log = MagicMock()
+        mock_log_class.return_value = mock_log
+
+        mock_certificate.side_effect = FileNotFoundError
+
+        conn = FirestoreConnection("fake/path.json", "test_collection")
+
+        result = conn.certificate_credentials()
+
+        assert result is False
+        mock_log.error.assert_called_once_with("File with credentials not found!")
+
+    @patch("src.core.firestoreconnection.credentials.Certificate")
+    @patch("src.core.firestoreconnection.Log")
+    def test_certificate_credentials_permission_error(self, mock_log_class, mock_certificate):
+        """Method tests the certificate credentials method when it raises PermissionError exception."""
+        mock_log = MagicMock()
+        mock_log_class.return_value = mock_log
+
+        mock_certificate.side_effect = PermissionError
+
+        conn = FirestoreConnection("fake/path.json", "test_collection")
+
+        result = conn.certificate_credentials()
+
+        assert result is False
+        mock_log.error.assert_called_once_with(
+            "File with credentials returned PermissionError!"
+        )
