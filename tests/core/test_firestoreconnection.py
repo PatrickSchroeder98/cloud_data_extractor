@@ -118,6 +118,25 @@ class TestFirestoreConnection(unittest.TestCase):
 
     @patch("src.core.firestoreconnection.credentials.Certificate")
     @patch("src.core.firestoreconnection.Log")
+    def test_certificate_credentials_success(self, mock_log_class, mock_certificate):
+        """Method tests the certificate credentials method success route."""
+        mock_log = MagicMock()
+        mock_log_class.return_value = mock_log
+
+        mock_certificate.return_value = MagicMock()
+
+        conn = FirestoreConnection("fake/path.json", "test_collection")
+
+        result = conn.certificate_credentials()
+
+        assert result is True
+        mock_certificate.assert_called_once_with("fake/path.json")
+        mock_log.info.assert_called_once_with("File with credentials loaded successfully!")
+
+        del conn
+
+    @patch("src.core.firestoreconnection.credentials.Certificate")
+    @patch("src.core.firestoreconnection.Log")
     def test_certificate_credentials_file_not_found(self, mock_log_class, mock_certificate):
         """Method tests the certificate credentials method when it raises FileNotFoundError exception."""
         mock_log = MagicMock()
@@ -131,6 +150,8 @@ class TestFirestoreConnection(unittest.TestCase):
 
         assert result is False
         mock_log.error.assert_called_once_with("File with credentials not found!")
+
+        del conn
 
     @patch("src.core.firestoreconnection.credentials.Certificate")
     @patch("src.core.firestoreconnection.Log")
@@ -149,3 +170,5 @@ class TestFirestoreConnection(unittest.TestCase):
         mock_log.error.assert_called_once_with(
             "File with credentials returned PermissionError!"
         )
+
+        del conn
