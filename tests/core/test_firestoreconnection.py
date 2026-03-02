@@ -1,3 +1,4 @@
+import pytest
 import unittest
 from unittest.mock import patch, MagicMock
 from src.core.firestoreconnection import FirestoreConnection
@@ -170,5 +171,39 @@ class TestFirestoreConnection(unittest.TestCase):
         mock_log.error.assert_called_once_with(
             "File with credentials returned PermissionError!"
         )
+
+        del conn
+
+    @patch("src.core.firestoreconnection.firebase_admin.initialize_app")
+    @patch("src.core.firestoreconnection.Log")
+    def test_initialize_firestore_success(self, mock_log_class, mock_initialize):
+        """Method tests the initialization method success route."""
+        mock_log = MagicMock()
+        mock_log_class.return_value = mock_log
+
+        conn = FirestoreConnection("fake/path.json", "test_collection")
+
+        fake_cred = MagicMock()
+
+        conn.initialize_firestore(fake_cred)
+
+        mock_initialize.assert_called_once_with(fake_cred)
+        mock_log.info.assert_called_once_with("Initializing firestore connection...")
+
+        del conn
+
+    @patch("src.core.firestoreconnection.firebase_admin.initialize_app")
+    @patch("src.core.firestoreconnection.Log")
+    def test_initialize_firestore_raises_exception(self, mock_log_class, mock_initialize):
+        """Method tests the initialization method failure route."""
+        mock_log = MagicMock()
+        mock_log_class.return_value = mock_log
+
+        mock_initialize.side_effect = ValueError("Init failed")
+
+        conn = FirestoreConnection("fake/path.json", "test_collection")
+
+        with pytest.raises(ValueError):
+            conn.initialize_firestore(MagicMock())
 
         del conn
