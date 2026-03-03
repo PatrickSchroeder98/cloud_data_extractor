@@ -207,3 +207,44 @@ class TestFirestoreConnection(unittest.TestCase):
             conn.initialize_firestore(MagicMock())
 
         del conn
+
+    @patch("src.core.firestoreconnection.firestore.client")
+    @patch("src.core.firestoreconnection.Log")
+    def test_db_client_success(self, mock_log_class, mock_client):
+        mock_log = MagicMock()
+        mock_log_class.return_value = mock_log
+
+        fake_db = MagicMock()
+        mock_client.return_value = fake_db
+
+        conn = FirestoreConnection("fake/path.json", "test_collection")
+
+        result = conn.db_client()
+
+        assert result is True
+        mock_client.assert_called_once()
+        mock_log.info.assert_called_once_with(
+            "Firestore database client initialized successfully!"
+        )
+
+        del conn
+
+    @patch("src.core.firestoreconnection.firestore.client")
+    @patch("src.core.firestoreconnection.Log")
+    def test_db_client_default_credentials_error(self, mock_log_class, mock_client):
+        mock_log = MagicMock()
+        mock_log_class.return_value = mock_log
+
+        from google.auth.exceptions import DefaultCredentialsError
+        mock_client.side_effect = DefaultCredentialsError("No credentials")
+
+        conn = FirestoreConnection("fake/path.json", "test_collection")
+
+        result = conn.db_client()
+
+        assert result is False
+        mock_log.error.assert_called_once_with(
+            "Credentials returned DefaultCredentialsError!"
+        )
+
+        del conn
