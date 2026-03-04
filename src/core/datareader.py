@@ -35,10 +35,21 @@ class DataReader:
         return normalized
 
     def fetch_as_dicts(self, results):
-        """Method returns results as a dictionary."""
+        """Method to fetch data as dictionaries."""
         self.__log.info("Saving data as dictionary...")
-        data = [doc.to_dict() for doc in results]
-        return data
+        try:
+            data = self._normalize(results)
+        except TypeError:
+            self.__log.error("TypeError: Results must be iterable.")
+            return None
+        except ValueError:
+            self.__log.error("ValueError: Results cannot be None.")
+            return None
+        except MemoryError as e:
+            self.__log.error(f"DataFrame creation failed with MemoryError: {e}")
+            return None
+        else:
+            return data
 
     def fetch_as_dataframe(self, results):
         """Method returns results as a dataframe."""
