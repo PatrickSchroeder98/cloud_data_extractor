@@ -248,3 +248,28 @@ class TestFirestoreConnection(unittest.TestCase):
         )
 
         del conn
+
+    @patch("src.core.firestoreconnection.Log")
+    def test_save_collection_success(self, mock_log_class):
+        mock_log = MagicMock()
+        mock_log_class.return_value = mock_log
+
+        conn = FirestoreConnection("fake/path.json", "test_collection")
+
+        # Mock Firestore DB and collection chain
+        mock_collection = MagicMock()
+        mock_collection.get.return_value = ["doc1", "doc2"]
+
+        mock_db = MagicMock()
+        mock_db.collection.return_value = mock_collection
+
+        conn.set_db(mock_db)
+
+        result = conn.save_collection()
+
+        assert result is True
+        mock_db.collection.assert_called_once_with("test_collection")
+        mock_collection.get.assert_called_once()
+        assert conn.get_results() == ["doc1", "doc2"]
+
+        del conn
