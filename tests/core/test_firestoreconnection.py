@@ -273,3 +273,38 @@ class TestFirestoreConnection(unittest.TestCase):
         assert conn.get_results() == ["doc1", "doc2"]
 
         del conn
+
+    @patch("src.core.firestoreconnection.Log")
+    def test_save_collection_db_is_none(self, mock_log_class):
+        mock_log = MagicMock()
+        mock_log_class.return_value = mock_log
+
+        conn = FirestoreConnection("fake/path.json", "test_collection")
+
+        conn.set_db(None)
+
+        result = conn.save_collection()
+
+        assert result is False
+        mock_log.error.assert_called_once_with("Firestore DB not initialized properly.")
+
+        del conn
+
+    @patch("src.core.firestoreconnection.Log")
+    def test_save_collection_collection_attribute_error(self, mock_log_class):
+        mock_log = MagicMock()
+        mock_log_class.return_value = mock_log
+
+        conn = FirestoreConnection("fake/path.json", "test_collection")
+
+        mock_db = MagicMock()
+        mock_db.collection.side_effect = AttributeError
+
+        conn.set_db(mock_db)
+
+        result = conn.save_collection()
+
+        assert result is False
+        mock_log.error.assert_called_once_with("Firestore DB not initialized properly.")
+
+        del conn
