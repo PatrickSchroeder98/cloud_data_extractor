@@ -5,13 +5,15 @@ from pathlib import Path
 from src.core.log import Log
 
 
-class TestFirestoreConnection(unittest.TestCase):
+class TestLog(unittest.TestCase):
     """Class with tests of the Log wrapper."""
 
     @patch("src.core.log.Path.mkdir")
     @patch("src.core.log.logging.FileHandler")
     @patch("src.core.log.logging.getLogger")
-    def test_log_init_creates_logger(self, mock_get_logger, mock_filehandler, mock_mkdir):
+    def test_log_init_creates_logger(
+        self, mock_get_logger, mock_filehandler, mock_mkdir
+    ):
 
         fake_logger = MagicMock()
         fake_logger.handlers = []

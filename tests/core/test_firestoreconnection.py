@@ -95,7 +95,9 @@ class TestFirestoreConnection(unittest.TestCase):
         """Method tests the getting the collection attribute."""
         firestore_connection = FirestoreConnection("example_path", "example_collection")
 
-        self.assertEqual(firestore_connection.get_collection_name(), "example_collection")
+        self.assertEqual(
+            firestore_connection.get_collection_name(), "example_collection"
+        )
 
         del firestore_connection
 
@@ -132,13 +134,17 @@ class TestFirestoreConnection(unittest.TestCase):
 
         assert result is True
         mock_certificate.assert_called_once_with("fake/path.json")
-        mock_log.info.assert_called_once_with("File with credentials loaded successfully!")
+        mock_log.info.assert_called_once_with(
+            "File with credentials loaded successfully!"
+        )
 
         del conn
 
     @patch("src.core.firestoreconnection.credentials.Certificate")
     @patch("src.core.firestoreconnection.Log")
-    def test_certificate_credentials_file_not_found(self, mock_log_class, mock_certificate):
+    def test_certificate_credentials_file_not_found(
+        self, mock_log_class, mock_certificate
+    ):
         """Method tests the certificate credentials method when it raises FileNotFoundError exception."""
         mock_log = MagicMock()
         mock_log_class.return_value = mock_log
@@ -156,7 +162,9 @@ class TestFirestoreConnection(unittest.TestCase):
 
     @patch("src.core.firestoreconnection.credentials.Certificate")
     @patch("src.core.firestoreconnection.Log")
-    def test_certificate_credentials_permission_error(self, mock_log_class, mock_certificate):
+    def test_certificate_credentials_permission_error(
+        self, mock_log_class, mock_certificate
+    ):
         """Method tests the certificate credentials method when it raises PermissionError exception."""
         mock_log = MagicMock()
         mock_log_class.return_value = mock_log
@@ -194,7 +202,9 @@ class TestFirestoreConnection(unittest.TestCase):
 
     @patch("src.core.firestoreconnection.firebase_admin.initialize_app")
     @patch("src.core.firestoreconnection.Log")
-    def test_initialize_firestore_raises_exception(self, mock_log_class, mock_initialize):
+    def test_initialize_firestore_raises_exception(
+        self, mock_log_class, mock_initialize
+    ):
         """Method tests the initialization method failure route."""
         mock_log = MagicMock()
         mock_log_class.return_value = mock_log
@@ -211,6 +221,7 @@ class TestFirestoreConnection(unittest.TestCase):
     @patch("src.core.firestoreconnection.firestore.client")
     @patch("src.core.firestoreconnection.Log")
     def test_db_client_success(self, mock_log_class, mock_client):
+        """Method tests the db_client success route."""
         mock_log = MagicMock()
         mock_log_class.return_value = mock_log
 
@@ -232,10 +243,12 @@ class TestFirestoreConnection(unittest.TestCase):
     @patch("src.core.firestoreconnection.firestore.client")
     @patch("src.core.firestoreconnection.Log")
     def test_db_client_default_credentials_error(self, mock_log_class, mock_client):
+        """Method tests the db_client DefaultCredentialsError exception route."""
         mock_log = MagicMock()
         mock_log_class.return_value = mock_log
 
         from google.auth.exceptions import DefaultCredentialsError
+
         mock_client.side_effect = DefaultCredentialsError("No credentials")
 
         conn = FirestoreConnection("fake/path.json", "test_collection")
@@ -251,6 +264,7 @@ class TestFirestoreConnection(unittest.TestCase):
 
     @patch("src.core.firestoreconnection.Log")
     def test_save_collection_success(self, mock_log_class):
+        """Method tests the save_collection success route."""
         mock_log = MagicMock()
         mock_log_class.return_value = mock_log
 
@@ -276,6 +290,7 @@ class TestFirestoreConnection(unittest.TestCase):
 
     @patch("src.core.firestoreconnection.Log")
     def test_save_collection_db_is_none(self, mock_log_class):
+        """Method tests the save_collection exception route when db is none."""
         mock_log = MagicMock()
         mock_log_class.return_value = mock_log
 
@@ -292,6 +307,7 @@ class TestFirestoreConnection(unittest.TestCase):
 
     @patch("src.core.firestoreconnection.Log")
     def test_save_collection_collection_attribute_error(self, mock_log_class):
+        """Method tests the save_collection exception route when collection attribute is invalid."""
         mock_log = MagicMock()
         mock_log_class.return_value = mock_log
 

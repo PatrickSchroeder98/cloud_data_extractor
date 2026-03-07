@@ -3,6 +3,7 @@ from firebase_admin import credentials, firestore
 from google.auth.exceptions import DefaultCredentialsError
 from src.core.log import Log
 
+
 class FirestoreConnection:
     """Class that handles firestore connection."""
 
@@ -61,12 +62,12 @@ class FirestoreConnection:
             self.__credentials = credentials.Certificate(self.get_path())
         except FileNotFoundError:
             self.__log.error("File with credentials not found!")
-            print("File with credentials not found!")
+            # print("File with credentials not found!")
             self.__credentials = None
             return False
         except PermissionError:
             self.__log.error("File with credentials returned PermissionError!")
-            print("File with credentials returned PermissionError!")
+            # print("File with credentials returned PermissionError!")
             self.__credentials = None
             return False
         else:
@@ -84,7 +85,7 @@ class FirestoreConnection:
             self.set_db(firestore.client())
         except DefaultCredentialsError:
             self.__log.error("Credentials returned DefaultCredentialsError!")
-            print("Credentials returned DefaultCredentialsError!")
+            # print("Credentials returned DefaultCredentialsError!")
             return False
         else:
             self.__log.info("Firestore database client initialized successfully!")
@@ -96,7 +97,7 @@ class FirestoreConnection:
             self.set_results(self.get_db().collection(self.get_collection_name()).get())
         except AttributeError as e:
             self.__log.error("Error! DB object is None.")
-            print("Error! DB object is None.")
+            # print("Error! DB object is None.")
             return False
         else:
             return True

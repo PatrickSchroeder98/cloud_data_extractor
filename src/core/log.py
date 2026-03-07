@@ -23,14 +23,10 @@ class Log:
         self.__logger.setLevel(logging.INFO)
 
         if not self.__logger.handlers:
-            handler = logging.FileHandler(
-                self.__path,
-                encoding="utf-8"
-            )
+            handler = logging.FileHandler(self.__path, encoding="utf-8")
 
             formatter = logging.Formatter(
-                "%(asctime)s | %(levelname)s | %(message)s",
-                datefmt="%Y-%m-%d %H:%M:%S"
+                "%(asctime)s | %(levelname)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
             )
 
             handler.setFormatter(formatter)
