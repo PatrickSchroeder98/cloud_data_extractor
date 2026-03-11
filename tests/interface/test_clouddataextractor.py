@@ -43,4 +43,36 @@ class TestCloudDataExtractor(unittest.TestCase):
         assert result is not None
 
         del extractor
+
+    @patch("src.interface.clouddataextractor.Log")
+    def test_certificate_credentials_success(self, mock_log_class):
+        mock_log_class.return_value = MagicMock()
+
+        extractor = CloudDataExtractor()
+
+        mock_fs = MagicMock()
+        mock_fs.certificate_credentials.return_value = True
+        mock_fs.get_credentials.return_value = "fake_credentials"
+
+        extractor._CloudDataExtractor__firestore_connection = mock_fs
+
+        result = extractor.certificate_credentials()
+
+        assert result == "fake_credentials"
+
+        del extractor
+
+    @patch("src.interface.clouddataextractor.Log")
+    def test_initialize_app_calls_firestore_connection(self, mock_log_class):
+        mock_log_class.return_value = MagicMock()
+
+        extractor = CloudDataExtractor()
+
+        mock_fs = MagicMock()
+        extractor._CloudDataExtractor__firestore_connection = mock_fs
+
+        extractor.initialize_app("fake_credentials")
+
+        mock_fs.initialize_firestore.assert_called_once_with("fake_credentials")
         
+        del extractor
