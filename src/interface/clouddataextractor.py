@@ -1,5 +1,5 @@
 from src.core.firestoreconnection import FirestoreConnection
-from src.exceptions.exceptions import CredentialsError, DBError, CollectionIsNone
+from src.exceptions.exceptions import CredentialsError, DBError, CollectionIsNone, ConnectionNotConfigured
 from src.core.log import Log
 
 
@@ -35,7 +35,15 @@ class CloudDataExtractor:
 
     def initialize_app(self, credentials):
         """Method for initializing the application."""
-        self.__firestore_connection.initialize_firestore(credentials)
+        try:
+            if not self.__firestore_connection:
+                raise ConnectionNotConfigured()
+        except ConnectionNotConfigured as e:
+            self.__log.error(e.get_message())
+            self.__log.error("Error code: " + e.get_code())
+            return None
+        else:
+            self.__firestore_connection.initialize_firestore(credentials)
 
     def db_client(self):
         """Method for getting the firestore database client."""
