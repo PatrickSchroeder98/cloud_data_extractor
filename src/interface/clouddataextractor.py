@@ -35,28 +35,33 @@ class CloudDataExtractor:
 
     def initialize_app(self, credentials):
         """Method for initializing the application."""
-        try:
-            if not self.__firestore_connection:
-                raise ConnectionNotConfigured()
-        except ConnectionNotConfigured as e:
+        if not self.__firestore_connection:
+            e = ConnectionNotConfigured()
             self.__log.error(e.get_message())
             self.__log.error("Error code: " + e.get_code())
             return None
-        else:
-            self.__firestore_connection.initialize_firestore(credentials)
+
+        self.__firestore_connection.initialize_firestore(credentials)
+        return None
 
     def db_client(self):
         """Method for getting the firestore database client."""
-        success = self.__firestore_connection.db_client()
-        try:
-            if success:
-                return self.__firestore_connection.get_db()
-            else:
-                raise DBError()
-        except DBError as e:
+
+        if not self.__firestore_connection:
+            e = ConnectionNotConfigured()
             self.__log.error(e.get_message())
             self.__log.error("Error code: " + e.get_code())
             return None
+
+        success = self.__firestore_connection.db_client()
+
+        if success:
+            return self.__firestore_connection.get_db()
+
+        e = DBError()
+        self.__log.error(e.get_message())
+        self.__log.error("Error code: " + e.get_code())
+        return None
 
     def db_get_collection(self):
         """Interface method for getting the firestore database collection."""

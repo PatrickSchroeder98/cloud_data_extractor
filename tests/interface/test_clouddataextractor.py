@@ -104,3 +104,24 @@ class TestCloudDataExtractor(unittest.TestCase):
         mock_fs.initialize_firestore.assert_called_once_with("fake_credentials")
 
         del extractor
+
+    @patch("src.interface.clouddataextractor.Log")
+    def test_db_client_success(self, mock_log_class):
+        mock_log_class.return_value = MagicMock()
+
+        extractor = CloudDataExtractor()
+
+        mock_fs = MagicMock()
+        mock_fs.db_client.return_value = True
+        mock_fs.get_db.return_value = "fake_db"
+
+        extractor._CloudDataExtractor__firestore_connection = mock_fs
+
+        result = extractor.db_client()
+
+        assert result == "fake_db"
+
+        mock_fs.db_client.assert_called_once()
+        mock_fs.get_db.assert_called_once()
+
+        del extractor
