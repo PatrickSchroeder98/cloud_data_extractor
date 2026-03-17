@@ -125,3 +125,31 @@ class TestCloudDataExtractor(unittest.TestCase):
         mock_fs.get_db.assert_called_once()
 
         del extractor
+
+    @patch("src.interface.clouddataextractor.Log")
+    @patch("src.interface.clouddataextractor.DBError")
+    def test_db_client_failure(self, mock_db_error, mock_log_class):
+        mock_log = MagicMock()
+        mock_log_class.return_value = mock_log
+
+        mock_exception = MagicMock()
+        mock_exception.get_message.return_value = "DB connection error."
+        mock_exception.get_code.return_value = "DB_CONNECTION_ERROR_002"
+
+        mock_db_error.return_value = mock_exception
+
+        extractor = CloudDataExtractor()
+
+        mock_fs = MagicMock()
+        mock_fs.db_client.return_value = False
+
+        extractor._CloudDataExtractor__firestore_connection = mock_fs
+
+        result = extractor.db_client()
+
+        assert result is None
+
+        mock_log.error.assert_any_call("DB connection error.")
+        mock_log.error.assert_any_call("Error code: DB_CONNECTION_ERROR_002")
+
+        del extractor
