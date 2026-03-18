@@ -65,21 +65,37 @@ class CloudDataExtractor:
 
     def db_get_collection(self):
         """Interface method for getting the firestore database collection."""
+        if not self.__firestore_connection:
+            return None
+
         return self.__firestore_connection.get_results()
 
     def extract_collection(self):
         """Interface method for saving the firestore collection."""
-        success = self.__firestore_connection.save_collection()
 
-        try:
-            if success:
-                return self.db_get_collection()
-            else:
-                raise CollectionIsNone()
-        except CollectionIsNone as e:
+        if not self.__firestore_connection:
+            e = ConnectionNotConfigured()
             self.__log.error(e.get_message())
             self.__log.error("Error code: " + e.get_code())
             return None
+
+        success = self.__firestore_connection.save_collection()
+
+        if not success:
+            e = CollectionIsNone()
+            self.__log.error(e.get_message())
+            self.__log.error("Error code: " + e.get_code())
+            return None
+
+        results = self.db_get_collection()
+
+        if results is None:
+            e = CollectionIsNone()
+            self.__log.error(e.get_message())
+            self.__log.error("Error code: " + e.get_code())
+            return None
+
+        return results
 
     def extract_data(self, path, collection_name):
         """Method for extracting data from Firestore documents."""
