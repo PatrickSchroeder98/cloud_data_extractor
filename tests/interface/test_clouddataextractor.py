@@ -183,4 +183,23 @@ class TestCloudDataExtractor(unittest.TestCase):
         assert result is None
 
         del extractor
-        
+
+    @patch("src.interface.clouddataextractor.Log")
+    def test_extract_collection_success(self, mock_log_class):
+        mock_log_class.return_value = MagicMock()
+
+        extractor = CloudDataExtractor()
+
+        mock_fs = MagicMock()
+        mock_fs.save_collection.return_value = True
+        mock_fs.get_results.return_value = ["doc1"]
+
+        extractor._CloudDataExtractor__firestore_connection = mock_fs
+
+        result = extractor.extract_collection()
+
+        assert result == ["doc1"]
+        mock_fs.save_collection.assert_called_once()
+        mock_fs.get_results.assert_called_once()
+
+        del extractor
