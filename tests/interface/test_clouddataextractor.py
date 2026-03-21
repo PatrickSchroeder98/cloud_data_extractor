@@ -203,3 +203,31 @@ class TestCloudDataExtractor(unittest.TestCase):
         mock_fs.get_results.assert_called_once()
 
         del extractor
+
+    @patch("src.interface.clouddataextractor.Log")
+    @patch("src.interface.clouddataextractor.CollectionIsNone")
+    def test_extract_collection_save_failure(self, mock_collection_exception, mock_log_class):
+        mock_log = MagicMock()
+        mock_log_class.return_value = mock_log
+
+        mock_exception = MagicMock()
+        mock_exception.get_message.return_value = "Collection is None, check the credentials and connection."
+        mock_exception.get_code.return_value = "COLLECTION_NONE_ERROR_003"
+
+        mock_collection_exception.return_value = mock_exception
+
+        extractor = CloudDataExtractor()
+
+        mock_fs = MagicMock()
+        mock_fs.save_collection.return_value = False
+
+        extractor._CloudDataExtractor__firestore_connection = mock_fs
+
+        result = extractor.extract_collection()
+
+        assert result is None
+
+        mock_log.error.assert_any_call("Collection is None, check the credentials and connection.")
+        mock_log.error.assert_any_call("Error code: COLLECTION_NONE_ERROR_003")
+
+        del extractor
