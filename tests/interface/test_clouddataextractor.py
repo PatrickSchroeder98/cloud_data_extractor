@@ -231,3 +231,52 @@ class TestCloudDataExtractor(unittest.TestCase):
         mock_log.error.assert_any_call("Error code: COLLECTION_NONE_ERROR_003")
 
         del extractor
+
+    @patch("src.interface.clouddataextractor.Log")
+    @patch("src.interface.clouddataextractor.CollectionIsNone")
+    def test_extract_collection_results_none(self, mock_collection_exception, mock_log_class):
+        mock_log = MagicMock()
+        mock_log_class.return_value = mock_log
+
+        mock_exception = MagicMock()
+        mock_exception.get_message.return_value = "Collection is None, check the credentials and connection."
+        mock_exception.get_code.return_value = "COLLECTION_NONE_ERROR_003"
+
+        mock_collection_exception.return_value = mock_exception
+
+        extractor = CloudDataExtractor()
+
+        mock_fs = MagicMock()
+        mock_fs.save_collection.return_value = True
+        mock_fs.get_results.return_value = None
+
+        extractor._CloudDataExtractor__firestore_connection = mock_fs
+
+        result = extractor.extract_collection()
+
+        assert result is None
+
+        del extractor
+
+    @patch("src.interface.clouddataextractor.Log")
+    @patch("src.interface.clouddataextractor.ConnectionNotConfigured")
+    def test_extract_collection_no_connection(self, mock_conn_exception, mock_log_class):
+        mock_log = MagicMock()
+        mock_log_class.return_value = mock_log
+
+        mock_exception = MagicMock()
+        mock_exception.get_message.return_value = "Firestore connection not configured."
+        mock_exception.get_code.return_value = "CONNECTION_NOT_CONFIGURED_004"
+
+        mock_conn_exception.return_value = mock_exception
+
+        extractor = CloudDataExtractor()
+
+        result = extractor.extract_collection()
+
+        assert result is None
+
+        mock_log.error.assert_any_call("Firestore connection not configured.")
+        mock_log.error.assert_any_call("Error code: CONNECTION_NOT_CONFIGURED_004")
+
+        del extractor
