@@ -280,3 +280,38 @@ class TestCloudDataExtractor(unittest.TestCase):
         mock_log.error.assert_any_call("Error code: CONNECTION_NOT_CONFIGURED_004")
 
         del extractor
+
+    @patch.object(CloudDataExtractor, "extract_collection")
+    @patch.object(CloudDataExtractor, "db_client")
+    @patch.object(CloudDataExtractor, "initialize_app")
+    @patch.object(CloudDataExtractor, "certificate_credentials")
+    @patch.object(CloudDataExtractor, "set_firestore_connection")
+    @patch("src.interface.clouddataextractor.Log")
+    def test_extract_data_success(
+            self,
+            mock_log_class,
+            mock_set_conn,
+            mock_cert,
+            mock_init,
+            mock_db_client,
+            mock_extract_collection
+    ):
+        mock_log_class.return_value = MagicMock()
+
+        extractor = CloudDataExtractor()
+
+        mock_cert.return_value = "fake_cred"
+        mock_db_client.return_value = "fake_db"
+        mock_extract_collection.return_value = ["doc1", "doc2"]
+
+        result = extractor.extract_data("path.json", "emails")
+
+        assert result == ["doc1", "doc2"]
+
+        mock_set_conn.assert_called_once_with("path.json", "emails")
+        mock_cert.assert_called_once()
+        mock_init.assert_called_once_with("fake_cred")
+        mock_db_client.assert_called_once()
+        mock_extract_collection.assert_called_once()
+
+        del extractor

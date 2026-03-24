@@ -99,8 +99,17 @@ class CloudDataExtractor:
 
     def extract_data(self, path, collection_name):
         """Method for extracting data from Firestore documents."""
+
         self.set_firestore_connection(path, collection_name)
+
         cred = self.certificate_credentials()
+        if not cred:
+            return None
+
         self.initialize_app(cred)
-        self.db_client()
+
+        db = self.db_client()
+        if not db:
+            return None
+
         return self.extract_collection()
