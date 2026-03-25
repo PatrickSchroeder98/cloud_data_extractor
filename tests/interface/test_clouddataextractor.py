@@ -315,3 +315,58 @@ class TestCloudDataExtractor(unittest.TestCase):
         mock_extract_collection.assert_called_once()
 
         del extractor
+
+    @patch.object(CloudDataExtractor, "initialize_app")
+    @patch.object(CloudDataExtractor, "certificate_credentials")
+    @patch.object(CloudDataExtractor, "set_firestore_connection")
+    @patch("src.interface.clouddataextractor.Log")
+    def test_extract_data_credentials_fail(
+            self,
+            mock_log_class,
+            mock_set_conn,
+            mock_cert,
+            mock_initialize,
+    ):
+        mock_log_class.return_value = MagicMock()
+
+        extractor = CloudDataExtractor()
+
+        mock_cert.return_value = None
+
+        result = extractor.extract_data("path.json", "emails")
+
+        mock_set_conn.assert_called_once()
+        mock_initialize.assert_not_called()
+
+        assert result is None
+
+        del extractor
+
+    @patch.object(CloudDataExtractor, "extract_collection")
+    @patch.object(CloudDataExtractor, "db_client")
+    @patch.object(CloudDataExtractor, "initialize_app")
+    @patch.object(CloudDataExtractor, "certificate_credentials")
+    @patch.object(CloudDataExtractor, "set_firestore_connection")
+    @patch("src.interface.clouddataextractor.Log")
+    def test_extract_data_db_client_fail(
+            self,
+            mock_log_class,
+            mock_set_conn,
+            mock_cert,
+            mock_init,
+            mock_db_client,
+            mock_extract_collection
+    ):
+        mock_log_class.return_value = MagicMock()
+
+        extractor = CloudDataExtractor()
+
+        mock_cert.return_value = "fake_cred"
+        mock_db_client.return_value = None
+
+        result = extractor.extract_data("path.json", "emails")
+
+        assert result is None
+        mock_extract_collection.assert_not_called()
+
+        del extractor
