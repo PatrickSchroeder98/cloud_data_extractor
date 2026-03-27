@@ -1,6 +1,5 @@
 import unittest
 from unittest.mock import patch, MagicMock
-from src.interface import clouddataextractor
 from src.interface.clouddataextractor import CloudDataExtractor
 
 
@@ -12,13 +11,14 @@ class TestCloudDataExtractor(unittest.TestCase):
         cde = CloudDataExtractor()
         firestore_connection = None
 
-        self.assertEqual(cde.get_firestore_connection() ,firestore_connection)
+        self.assertEqual(cde.get_firestore_connection(), firestore_connection)
 
         del cde
 
     @patch("src.interface.clouddataextractor.FirestoreConnection")
     @patch("src.interface.clouddataextractor.Log")
     def test_set_firestore_connection(self, mock_log_class, mock_fs_conn):
+        """Method tests the setting of the firestore connection."""
         mock_log_class.return_value = MagicMock()
 
         extractor = CloudDataExtractor()
@@ -32,6 +32,7 @@ class TestCloudDataExtractor(unittest.TestCase):
     @patch("src.interface.clouddataextractor.FirestoreConnection")
     @patch("src.interface.clouddataextractor.Log")
     def test_get_firestore_connection(self, mock_log_class, mock_fs_conn):
+        """Method tests the get method of the firestore connection."""
         mock_log_class.return_value = MagicMock()
 
         extractor = CloudDataExtractor()
@@ -46,6 +47,7 @@ class TestCloudDataExtractor(unittest.TestCase):
 
     @patch("src.interface.clouddataextractor.Log")
     def test_certificate_credentials_success(self, mock_log_class):
+        """Method tests the certificate credentials method success route."""
         mock_log_class.return_value = MagicMock()
 
         extractor = CloudDataExtractor()
@@ -64,13 +66,16 @@ class TestCloudDataExtractor(unittest.TestCase):
 
     @patch("src.interface.clouddataextractor.Log")
     @patch("src.interface.clouddataextractor.CredentialsError")
-    def test_certificate_credentials_failure(self, mock_credentials_error, mock_log_class):
+    def test_certificate_credentials_failure(
+        self, mock_credentials_error, mock_log_class
+    ):
+        """Method tests the certificate credentials method exception route."""
         mock_log = MagicMock()
         mock_log_class.return_value = mock_log
 
         mock_exception = MagicMock()
-        mock_exception.get_message.return_value = "Credential error"
-        mock_exception.get_code.return_value = "401"
+        mock_exception.get_message.return_value = "Provided credentials returned error."
+        mock_exception.get_code.return_value = "CREDENTIALS_INVALID_001"
 
         mock_credentials_error.return_value = mock_exception
 
@@ -85,13 +90,14 @@ class TestCloudDataExtractor(unittest.TestCase):
 
         assert result is None
 
-        mock_log.error.assert_any_call("Credential error")
-        mock_log.error.assert_any_call("Error code: 401")
+        mock_log.error.assert_any_call("Provided credentials returned error.")
+        mock_log.error.assert_any_call("Error code: CREDENTIALS_INVALID_001")
 
         del extractor
 
     @patch("src.interface.clouddataextractor.Log")
     def test_initialize_app_calls_firestore_connection(self, mock_log_class):
+        """Method tests the initialize method of the CloudDataExtractor class."""
         mock_log_class.return_value = MagicMock()
 
         extractor = CloudDataExtractor()
@@ -107,6 +113,7 @@ class TestCloudDataExtractor(unittest.TestCase):
 
     @patch("src.interface.clouddataextractor.Log")
     def test_db_client_success(self, mock_log_class):
+        """Method tests the db_client method success route."""
         mock_log_class.return_value = MagicMock()
 
         extractor = CloudDataExtractor()
@@ -129,6 +136,7 @@ class TestCloudDataExtractor(unittest.TestCase):
     @patch("src.interface.clouddataextractor.Log")
     @patch("src.interface.clouddataextractor.DBError")
     def test_db_client_failure(self, mock_db_error, mock_log_class):
+        """Method tests the db_client method exception route."""
         mock_log = MagicMock()
         mock_log_class.return_value = mock_log
 
@@ -156,6 +164,7 @@ class TestCloudDataExtractor(unittest.TestCase):
 
     @patch("src.interface.clouddataextractor.Log")
     def test_db_get_collection_success(self, mock_log_class):
+        """Method tests the db_get_collection method success route."""
         mock_log_class.return_value = MagicMock()
 
         extractor = CloudDataExtractor()
@@ -174,6 +183,7 @@ class TestCloudDataExtractor(unittest.TestCase):
 
     @patch("src.interface.clouddataextractor.Log")
     def test_db_get_collection_no_connection(self, mock_log_class):
+        """Method tests the db_get_collection method exception route."""
         mock_log_class.return_value = MagicMock()
 
         extractor = CloudDataExtractor()
@@ -186,6 +196,7 @@ class TestCloudDataExtractor(unittest.TestCase):
 
     @patch("src.interface.clouddataextractor.Log")
     def test_extract_collection_success(self, mock_log_class):
+        """Method tests the extract_collection method success route."""
         mock_log_class.return_value = MagicMock()
 
         extractor = CloudDataExtractor()
@@ -206,12 +217,17 @@ class TestCloudDataExtractor(unittest.TestCase):
 
     @patch("src.interface.clouddataextractor.Log")
     @patch("src.interface.clouddataextractor.CollectionIsNone")
-    def test_extract_collection_save_failure(self, mock_collection_exception, mock_log_class):
+    def test_extract_collection_save_failure(
+        self, mock_collection_exception, mock_log_class
+    ):
+        """Method tests the extract_collection method exception route."""
         mock_log = MagicMock()
         mock_log_class.return_value = mock_log
 
         mock_exception = MagicMock()
-        mock_exception.get_message.return_value = "Collection is None, check the credentials and connection."
+        mock_exception.get_message.return_value = (
+            "Collection is None, check the credentials and connection."
+        )
         mock_exception.get_code.return_value = "COLLECTION_NONE_ERROR_003"
 
         mock_collection_exception.return_value = mock_exception
@@ -227,19 +243,26 @@ class TestCloudDataExtractor(unittest.TestCase):
 
         assert result is None
 
-        mock_log.error.assert_any_call("Collection is None, check the credentials and connection.")
+        mock_log.error.assert_any_call(
+            "Collection is None, check the credentials and connection."
+        )
         mock_log.error.assert_any_call("Error code: COLLECTION_NONE_ERROR_003")
 
         del extractor
 
     @patch("src.interface.clouddataextractor.Log")
     @patch("src.interface.clouddataextractor.CollectionIsNone")
-    def test_extract_collection_results_none(self, mock_collection_exception, mock_log_class):
+    def test_extract_collection_results_none(
+        self, mock_collection_exception, mock_log_class
+    ):
+        """Method tests the extract_collection method exception route."""
         mock_log = MagicMock()
         mock_log_class.return_value = mock_log
 
         mock_exception = MagicMock()
-        mock_exception.get_message.return_value = "Collection is None, check the credentials and connection."
+        mock_exception.get_message.return_value = (
+            "Collection is None, check the credentials and connection."
+        )
         mock_exception.get_code.return_value = "COLLECTION_NONE_ERROR_003"
 
         mock_collection_exception.return_value = mock_exception
@@ -260,7 +283,10 @@ class TestCloudDataExtractor(unittest.TestCase):
 
     @patch("src.interface.clouddataextractor.Log")
     @patch("src.interface.clouddataextractor.ConnectionNotConfigured")
-    def test_extract_collection_no_connection(self, mock_conn_exception, mock_log_class):
+    def test_extract_collection_no_connection(
+        self, mock_conn_exception, mock_log_class
+    ):
+        """Method tests the extract_collection method exception route."""
         mock_log = MagicMock()
         mock_log_class.return_value = mock_log
 
@@ -288,14 +314,15 @@ class TestCloudDataExtractor(unittest.TestCase):
     @patch.object(CloudDataExtractor, "set_firestore_connection")
     @patch("src.interface.clouddataextractor.Log")
     def test_extract_data_success(
-            self,
-            mock_log_class,
-            mock_set_conn,
-            mock_cert,
-            mock_init,
-            mock_db_client,
-            mock_extract_collection
+        self,
+        mock_log_class,
+        mock_set_conn,
+        mock_cert,
+        mock_init,
+        mock_db_client,
+        mock_extract_collection,
     ):
+        """Method tests the extract_data method success route."""
         mock_log_class.return_value = MagicMock()
 
         extractor = CloudDataExtractor()
@@ -321,12 +348,13 @@ class TestCloudDataExtractor(unittest.TestCase):
     @patch.object(CloudDataExtractor, "set_firestore_connection")
     @patch("src.interface.clouddataextractor.Log")
     def test_extract_data_credentials_fail(
-            self,
-            mock_log_class,
-            mock_set_conn,
-            mock_cert,
-            mock_initialize,
+        self,
+        mock_log_class,
+        mock_set_conn,
+        mock_cert,
+        mock_initialize,
     ):
+        """Method tests the extract_data method exception route."""
         mock_log_class.return_value = MagicMock()
 
         extractor = CloudDataExtractor()
@@ -349,14 +377,15 @@ class TestCloudDataExtractor(unittest.TestCase):
     @patch.object(CloudDataExtractor, "set_firestore_connection")
     @patch("src.interface.clouddataextractor.Log")
     def test_extract_data_db_client_fail(
-            self,
-            mock_log_class,
-            mock_set_conn,
-            mock_cert,
-            mock_init,
-            mock_db_client,
-            mock_extract_collection
+        self,
+        mock_log_class,
+        mock_set_conn,
+        mock_cert,
+        mock_init,
+        mock_db_client,
+        mock_extract_collection,
     ):
+        """Method tests the extract_data method exception route."""
         mock_log_class.return_value = MagicMock()
 
         extractor = CloudDataExtractor()
