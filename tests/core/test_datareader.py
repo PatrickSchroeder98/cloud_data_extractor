@@ -1,6 +1,7 @@
 import unittest
 from src.core.datareader import DataReader
 
+
 class TestDataReader(unittest.TestCase):
     """Class with tests of the DataReader."""
 

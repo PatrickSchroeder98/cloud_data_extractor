@@ -23,15 +23,14 @@ class CloudDataExtractor:
         """Method for certificating the firestore credentials."""
 
         success = self.__firestore_connection.certificate_credentials()
-        try:
-            if success:
-                return self.__firestore_connection.get_credentials()
-            else:
-                raise CredentialsError()
-        except CredentialsError as e:
-                self.__log.error(e.get_message())
-                self.__log.error("Error code: " + e.get_code())
-                return None
+
+        if not success:
+            e = CredentialsError()
+            self.__log.error(e.get_message())
+            self.__log.error("Error code: " + e.get_code())
+            return None
+
+        return self.__firestore_connection.get_credentials()
 
     def initialize_app(self, credentials):
         """Method for initializing the application."""

@@ -4,7 +4,7 @@ from src.core.log import Log
 
 
 class DataReader:
-    """Class responsible for reading extracting data and returning it in chosen format."""
+    """Class responsible for reading the extracted data and returning it in chosen format."""
 
     def __init__(self):
         """Class constructor initializes Log."""

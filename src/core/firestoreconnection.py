@@ -8,7 +8,7 @@ class FirestoreConnection:
     """Class that handles firestore connection."""
 
     def __init__(self, path, collection_name):
-        """Method for initializing firestore connection."""
+        """Method for initializing firestore connection class object, takes 1 argument of collection name."""
         self.__path = path
         self.__credentials = None
         self.__db = None
