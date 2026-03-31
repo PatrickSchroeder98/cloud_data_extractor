@@ -16,21 +16,44 @@ class DataReader:
             self.__log.error("Error! Results is None.")
             raise ValueError("Results cannot be None.")
 
-        if not hasattr(results, "__iter__"):
-            raise TypeError("Error! Results must be iterable.")
+        # Prevent strings and bytes from being treated as valid iterables
+        if isinstance(results, (str, bytes)):
+            raise TypeError("Results must be a non-string iterable.")
+
+        try:
+            iterator = iter(results)
+        except TypeError:
+            raise TypeError("Results must be iterable.")
 
         normalized = []
 
-        for item in results:
+        for item in iterator:
+            if item is None:
+                raise TypeError("Items in results cannot be None.")
+
+            # Firestore-like object
             if hasattr(item, "to_dict"):
-                normalized.append(item.to_dict())
+                method = getattr(item, "to_dict")
+
+                if not callable(method):
+                    raise TypeError("to_dict attribute must be callable.")
+
+                try:
+                    value = method()
+                except Exception as e:
+                    raise ValueError("to_dict() raised an exception.") from e
+
+                if not isinstance(value, dict):
+                    raise TypeError("to_dict() must return a dictionary.")
+
+                normalized.append(value.copy())
+
             elif isinstance(item, dict):
-                normalized.append(item)
+                normalized.append(item.copy())
+
             else:
                 self.__log.error("Unsupported result type!")
-                raise TypeError(
-                    f"Unsupported result type: {type(item)}"
-                )
+                raise TypeError(f"Unsupported result type: {type(item)}")
 
         return normalized
 
