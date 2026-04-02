@@ -60,19 +60,21 @@ class DataReader:
     def fetch_as_dicts(self, results):
         """Method to fetch data as dictionaries."""
         self.__log.info("Saving data as dictionary...")
+
         try:
-            data = self._normalize(results)
-        except TypeError:
-            self.__log.error("TypeError: Results must be iterable.")
+            return self._normalize(results)
+
+        except TypeError as e:
+            self.__log.error(f"TypeError during normalization: {e}")
             return None
-        except ValueError:
-            self.__log.error("ValueError: Results cannot be None.")
+
+        except ValueError as e:
+            self.__log.error(f"ValueError during normalization: {e}")
             return None
+
         except MemoryError as e:
-            self.__log.error(f"DataFrame creation failed with MemoryError: {e}")
+            self.__log.error(f"Normalization failed with MemoryError: {e}")
             return None
-        else:
-            return data
 
     def fetch_as_dataframe(self, results):
         """Method to fetch data as Pandas dataframe."""
@@ -87,7 +89,7 @@ class DataReader:
             self.__log.error("ValueError: Results cannot be None.")
             return None
         except MemoryError as e:
-            self.__log.error(f"DataFrame creation failed with MemoryError: {e}")
+            self.__log.error(f"Normalization failed with MemoryError: {e}")
             return None
 
         try:

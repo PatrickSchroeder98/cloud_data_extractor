@@ -1,6 +1,6 @@
 import unittest
 from src.core.datareader import DataReader
-
+from unittest.mock import MagicMock, patch
 
 class TestDataReader(unittest.TestCase):
     """Class with tests of the DataReader."""
@@ -9,7 +9,6 @@ class TestDataReader(unittest.TestCase):
         """Method tests the initialization of a class"""
         dr = DataReader()
         self.assertEqual(type(dr), DataReader)
-        del dr
 
     def test_normalize_none(self):
         dr = DataReader()
@@ -38,4 +37,22 @@ class TestDataReader(unittest.TestCase):
 
         self.assertEqual(result, data)
         self.assertIsNot(result[0], data[0])
-        
+
+    def test_normalize_firestore_like_object(self):
+        dr = DataReader()
+
+        mock_snapshot = MagicMock()
+        mock_snapshot.to_dict.return_value = {"x": 10}
+
+        result = dr._normalize([mock_snapshot])
+        self.assertEqual(result, [{"x": 10}])
+        mock_snapshot.to_dict.assert_called_once()
+
+    def test_normalize_to_dict_not_callable(self):
+        dr = DataReader()
+
+        class BadObject:
+            to_dict = {"not": "callable"}
+
+        with self.assertRaises(TypeError):
+            dr._normalize([BadObject()])
