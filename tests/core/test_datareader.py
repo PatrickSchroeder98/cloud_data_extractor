@@ -56,3 +56,21 @@ class TestDataReader(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             dr._normalize([BadObject()])
+
+    def test_normalize_to_dict_returns_non_dict(self):
+        dr = DataReader()
+
+        mock_snapshot = MagicMock()
+        mock_snapshot.to_dict.return_value = "not a dict"
+
+        with self.assertRaises(TypeError):
+            dr._normalize([mock_snapshot])
+
+    def test_normalize_to_dict_raises_exception(self):
+        dr = DataReader()
+
+        mock_snapshot = MagicMock()
+        mock_snapshot.to_dict.side_effect = Exception("Failure")
+
+        with self.assertRaises(ValueError):
+            dr._normalize([mock_snapshot])
