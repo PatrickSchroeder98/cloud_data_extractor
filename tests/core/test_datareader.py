@@ -74,3 +74,24 @@ class TestDataReader(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             dr._normalize([mock_snapshot])
+
+    def test_normalize_unsupported_type(self):
+        dr = DataReader()
+
+        with self.assertRaises(TypeError):
+            dr._normalize([1, 2, 3])
+
+    def test_normalize_item_none(self):
+        dr = DataReader()
+
+        with self.assertRaises(TypeError):
+            dr._normalize([None])
+
+    def test_fetch_as_dicts_success(self):
+        dr = DataReader()
+
+        with patch.object(dr, "_normalize", return_value=[{"a": 1}]) as mock_norm:
+            result = dr.fetch_as_dicts("dummy")
+
+            self.assertEqual(result, [{"a": 1}])
+            mock_norm.assert_called_once_with("dummy")
