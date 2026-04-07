@@ -95,3 +95,25 @@ class TestDataReader(unittest.TestCase):
 
             self.assertEqual(result, [{"a": 1}])
             mock_norm.assert_called_once_with("dummy")
+
+    def test_fetch_as_dicts_type_error(self):
+        dr = DataReader()
+
+        with patch.object(dr, "_normalize", side_effect=TypeError()):
+            result = dr.fetch_as_dicts("dummy")
+            self.assertIsNone(result)
+
+    def test_fetch_as_dicts_value_error(self):
+        dr = DataReader()
+
+        with patch.object(dr, "_normalize", side_effect=ValueError()):
+            result = dr.fetch_as_dicts("dummy")
+            self.assertIsNone(result)
+
+    def test_fetch_as_dicts_memory_error(self):
+        dr = DataReader()
+
+        with patch.object(dr, "_normalize", side_effect=MemoryError("Out of memory")):
+            result = dr.fetch_as_dicts("dummy")
+            self.assertIsNone(result)
+            
