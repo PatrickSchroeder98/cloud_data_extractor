@@ -116,4 +116,23 @@ class TestDataReader(unittest.TestCase):
         with patch.object(dr, "_normalize", side_effect=MemoryError("Out of memory")):
             result = dr.fetch_as_dicts("dummy")
             self.assertIsNone(result)
-            
+
+    def test_fetch_as_dicts_logs_info(self):
+        dr = DataReader()
+        dr._DataReader__log = MagicMock()
+
+        with patch.object(dr, "_normalize", return_value=[]):
+            dr.fetch_as_dicts([])
+
+            dr._DataReader__log.info.assert_called_once_with(
+                "Saving data as dictionary..."
+            )
+
+    def test_fetch_as_dicts_logs_error_on_exception(self):
+        dr = DataReader()
+        dr._DataReader__log = MagicMock()
+
+        with patch.object(dr, "_normalize", side_effect=TypeError("Bad type")):
+            dr.fetch_as_dicts("dummy")
+
+            self.assertTrue(dr._DataReader__log.error.called)
