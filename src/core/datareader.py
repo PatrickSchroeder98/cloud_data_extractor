@@ -82,22 +82,16 @@ class DataReader:
 
         try:
             data = self._normalize(results)
-        except TypeError:
-            self.__log.error("TypeError: Results must be iterable.")
+        except (TypeError, ValueError, MemoryError) as e:
+            self.__log.error(f"Normalization failed: {e}")
             return None
-        except ValueError:
-            self.__log.error("ValueError: Results cannot be None.")
-            return None
-        except MemoryError as e:
-            self.__log.error(f"Normalization failed with MemoryError: {e}")
+
+        if not isinstance(data, list):
+            self.__log.error("Normalized data must be a list.")
             return None
 
         try:
             return pd.DataFrame(data)
-        except ValueError as e:
-            self.__log.error(f"DataFrame creation failed with ValueError: {e}")
+        except (ValueError, TypeError, MemoryError) as e:
+            self.__log.error(f"DataFrame creation failed: {e}")
             return None
-        except TypeError as e:
-            self.__log.error(f"DataFrame creation failed with TypeError: {e}")
-            return None
-        
