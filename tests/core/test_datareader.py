@@ -136,3 +136,31 @@ class TestDataReader(unittest.TestCase):
             dr.fetch_as_dicts("dummy")
 
             self.assertTrue(dr._DataReader__log.error.called)
+
+    def test_fetch_as_dataframe_normalize_type_error(self):
+        dr = DataReader()
+
+        with patch.object(dr, "_normalize", side_effect=TypeError("Bad type")):
+            result = dr.fetch_as_dataframe("dummy")
+            self.assertIsNone(result)
+
+    def test_fetch_as_dataframe_normalize_value_error(self):
+        dr = DataReader()
+
+        with patch.object(dr, "_normalize", side_effect=ValueError("None")):
+            result = dr.fetch_as_dataframe("dummy")
+            self.assertIsNone(result)
+
+    def test_fetch_as_dataframe_normalize_memory_error(self):
+        dr = DataReader()
+
+        with patch.object(dr, "_normalize", side_effect=MemoryError("OOM")):
+            result = dr.fetch_as_dataframe("dummy")
+            self.assertIsNone(result)
+
+    def test_fetch_as_dataframe_invalid_normalized_type(self):
+        dr = DataReader()
+
+        with patch.object(dr, "_normalize", return_value="not a list"):
+            result = dr.fetch_as_dataframe("dummy")
+            self.assertIsNone(result)
