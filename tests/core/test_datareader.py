@@ -164,3 +164,27 @@ class TestDataReader(unittest.TestCase):
         with patch.object(dr, "_normalize", return_value="not a list"):
             result = dr.fetch_as_dataframe("dummy")
             self.assertIsNone(result)
+
+    def test_fetch_as_dataframe_dataframe_value_error(self):
+        dr = DataReader()
+
+        with patch.object(dr, "_normalize", return_value=[{"a": 1}]):
+            with patch("src.core.datareader.pd.DataFrame", side_effect=ValueError("Bad DF")):
+                result = dr.fetch_as_dataframe("dummy")
+                self.assertIsNone(result)
+
+    def test_fetch_as_dataframe_dataframe_type_error(self):
+        dr = DataReader()
+
+        with patch.object(dr, "_normalize", return_value=[{"a": 1}]):
+            with patch("src.core.datareader.pd.DataFrame", side_effect=TypeError("Bad DF")):
+                result = dr.fetch_as_dataframe("dummy")
+                self.assertIsNone(result)
+
+    def test_fetch_as_dataframe_dataframe_memory_error(self):
+        dr = DataReader()
+
+        with patch.object(dr, "_normalize", return_value=[{"a": 1}]):
+            with patch("src.core.datareader.pd.DataFrame", side_effect=MemoryError("OOM")):
+                result = dr.fetch_as_dataframe("dummy")
+                self.assertIsNone(result)
