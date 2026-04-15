@@ -1,4 +1,5 @@
 import unittest
+import pandas as pd
 from src.core.datareader import DataReader
 from unittest.mock import MagicMock, patch
 
@@ -188,3 +189,24 @@ class TestDataReader(unittest.TestCase):
             with patch("src.core.datareader.pd.DataFrame", side_effect=MemoryError("OOM")):
                 result = dr.fetch_as_dataframe("dummy")
                 self.assertIsNone(result)
+
+    def test_fetch_as_dataframe_logs_info(self):
+        dr = DataReader()
+        dr._DataReader__log = MagicMock()
+
+        with patch.object(dr, "_normalize", return_value=[]):
+            with patch("src.core.datareader.pd.DataFrame", return_value=pd.DataFrame()):
+                dr.fetch_as_dataframe([])
+
+                dr._DataReader__log.info.assert_called_once_with(
+                    "Saving data as dataframe..."
+                )
+
+    def test_fetch_as_dataframe_logs_error(self):
+        dr = DataReader()
+        dr._DataReader__log = MagicMock()
+
+        with patch.object(dr, "_normalize", side_effect=TypeError("Bad type")):
+            dr.fetch_as_dataframe("dummy")
+
+            self.assertTrue(dr._DataReader__log.error.called)
