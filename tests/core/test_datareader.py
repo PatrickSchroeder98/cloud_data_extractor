@@ -138,6 +138,18 @@ class TestDataReader(unittest.TestCase):
 
             self.assertTrue(dr._DataReader__log.error.called)
 
+    def test_fetch_as_dataframe_success(self):
+        dr = DataReader()
+
+        with patch.object(dr, "_normalize", return_value=[{"a": 1}]):
+            with patch("src.core.datareader.pd.DataFrame") as mock_df:
+                mock_df.return_value = "DF_OBJECT"
+
+                result = dr.fetch_as_dataframe("dummy")
+
+                self.assertEqual(result, "DF_OBJECT")
+                mock_df.assert_called_once_with([{"a": 1}])
+
     def test_fetch_as_dataframe_normalize_type_error(self):
         dr = DataReader()
 
