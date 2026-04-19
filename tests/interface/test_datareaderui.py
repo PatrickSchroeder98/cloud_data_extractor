@@ -19,3 +19,16 @@ class TestDataReaderUI(unittest.TestCase):
 
         self.assertEqual(result, [{"a": 1}])
         ui._DataReaderUI__dr.fetch_as_dicts.assert_called_once_with("input")
+
+    def test_fetch_as_dicts_none_logs_error(self):
+        ui = DataReaderUI()
+        ui._DataReaderUI__dr = MagicMock()
+        ui._DataReaderUI__dr.fetch_as_dicts.return_value = None
+        ui._DataReaderUI__log = MagicMock()
+
+        result = ui.fetch_as_dicts("input")
+
+        self.assertIsNone(result)
+        ui._DataReaderUI__log.error.assert_called_once_with(
+            "Results are None, check Error Logs for more information."
+        )
