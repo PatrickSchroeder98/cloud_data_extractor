@@ -32,3 +32,26 @@ class TestDataReaderUI(unittest.TestCase):
         ui._DataReaderUI__log.error.assert_called_once_with(
             "Results are None, check Error Logs for more information."
         )
+
+    def test_fetch_as_dataframe_success(self):
+        ui = DataReaderUI()
+        ui._DataReaderUI__dr = MagicMock()
+        ui._DataReaderUI__dr.fetch_as_dataframe.return_value = "DF"
+
+        result = ui.fetch_as_dataframe("input")
+
+        self.assertEqual(result, "DF")
+        ui._DataReaderUI__dr.fetch_as_dataframe.assert_called_once_with("input")
+
+    def test_fetch_as_dataframe_none_logs_error(self):
+        ui = DataReaderUI()
+        ui._DataReaderUI__dr = MagicMock()
+        ui._DataReaderUI__dr.fetch_as_dataframe.return_value = None
+        ui._DataReaderUI__log = MagicMock()
+
+        result = ui.fetch_as_dataframe("input")
+
+        self.assertIsNone(result)
+        ui._DataReaderUI__log.error.assert_called_once_with(
+            "Results are None, check Error Logs for more information."
+        )
