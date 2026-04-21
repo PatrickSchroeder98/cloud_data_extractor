@@ -3,6 +3,7 @@ import pandas as pd
 from src.core.datareader import DataReader
 from unittest.mock import MagicMock, patch
 
+
 class TestDataReader(unittest.TestCase):
     """Class with tests of the DataReader."""
 
@@ -12,26 +13,31 @@ class TestDataReader(unittest.TestCase):
         self.assertEqual(type(dr), DataReader)
 
     def test_normalize_none(self):
+        """Method tests the normalization of a None object."""
         dr = DataReader()
         with self.assertRaises(ValueError):
             dr._normalize(None)
 
     def test_normalize_not_iterable(self):
+        """Method tests the normalization of an object that is not iterable."""
         dr = DataReader()
         with self.assertRaises(TypeError):
             dr._normalize(123)
 
     def test_normalize_string_iterable_rejected(self):
+        """Method tests the normalization of a string."""
         dr = DataReader()
         with self.assertRaises(TypeError):
             dr._normalize("string")
 
     def test_normalize_empty_iterable(self):
+        """Method tests the normalization of an empty object."""
         dr = DataReader()
         result = dr._normalize([])
         self.assertEqual(result, [])
 
     def test_normalize_dict_items(self):
+        """Method tests the normalization of a dictionary items."""
         dr = DataReader()
         data = [{"a": 1}, {"b": 2}]
         result = dr._normalize(data)
@@ -40,6 +46,7 @@ class TestDataReader(unittest.TestCase):
         self.assertIsNot(result[0], data[0])
 
     def test_normalize_firestore_like_object(self):
+        """Method tests the normalization of a Firestore object."""
         dr = DataReader()
 
         mock_snapshot = MagicMock()
@@ -50,6 +57,7 @@ class TestDataReader(unittest.TestCase):
         mock_snapshot.to_dict.assert_called_once()
 
     def test_normalize_to_dict_not_callable(self):
+        """Method tests the normalization of a not callable object."""
         dr = DataReader()
 
         class BadObject:
@@ -59,6 +67,7 @@ class TestDataReader(unittest.TestCase):
             dr._normalize([BadObject()])
 
     def test_normalize_to_dict_returns_non_dict(self):
+        """Method tests the normalization functionality behaviour when returning a non-dict."""
         dr = DataReader()
 
         mock_snapshot = MagicMock()
@@ -68,6 +77,7 @@ class TestDataReader(unittest.TestCase):
             dr._normalize([mock_snapshot])
 
     def test_normalize_to_dict_raises_exception(self):
+        """Method tests the normalization functionality behaviour when raising an exception."""
         dr = DataReader()
 
         mock_snapshot = MagicMock()
@@ -77,18 +87,21 @@ class TestDataReader(unittest.TestCase):
             dr._normalize([mock_snapshot])
 
     def test_normalize_unsupported_type(self):
+        """Method tests the normalization functionality behaviour when unsupported type."""
         dr = DataReader()
 
         with self.assertRaises(TypeError):
             dr._normalize([1, 2, 3])
 
     def test_normalize_item_none(self):
+        """Method tests the normalization of a None object."""
         dr = DataReader()
 
         with self.assertRaises(TypeError):
             dr._normalize([None])
 
     def test_fetch_as_dicts_success(self):
+        """Method tests the fetching data as dictionaries functionality success route."""
         dr = DataReader()
 
         with patch.object(dr, "_normalize", return_value=[{"a": 1}]) as mock_norm:
@@ -98,6 +111,7 @@ class TestDataReader(unittest.TestCase):
             mock_norm.assert_called_once_with("dummy")
 
     def test_fetch_as_dicts_type_error(self):
+        """Method tests the fetching data as dictionaries functionality type error route."""
         dr = DataReader()
 
         with patch.object(dr, "_normalize", side_effect=TypeError()):
@@ -105,6 +119,7 @@ class TestDataReader(unittest.TestCase):
             self.assertIsNone(result)
 
     def test_fetch_as_dicts_value_error(self):
+        """Method tests the fetching data as dictionaries functionality value error route."""
         dr = DataReader()
 
         with patch.object(dr, "_normalize", side_effect=ValueError()):
@@ -112,6 +127,7 @@ class TestDataReader(unittest.TestCase):
             self.assertIsNone(result)
 
     def test_fetch_as_dicts_memory_error(self):
+        """Method tests the fetching data as dictionaries functionality memory error route."""
         dr = DataReader()
 
         with patch.object(dr, "_normalize", side_effect=MemoryError("Out of memory")):
@@ -119,6 +135,7 @@ class TestDataReader(unittest.TestCase):
             self.assertIsNone(result)
 
     def test_fetch_as_dicts_logs_info(self):
+        """Method tests information logging functionality during fetching data as dictionaries."""
         dr = DataReader()
         dr._DataReader__log = MagicMock()
 
@@ -130,6 +147,7 @@ class TestDataReader(unittest.TestCase):
             )
 
     def test_fetch_as_dicts_logs_error_on_exception(self):
+        """Method tests error logging functionality during fetching data as dictionaries."""
         dr = DataReader()
         dr._DataReader__log = MagicMock()
 
@@ -139,6 +157,7 @@ class TestDataReader(unittest.TestCase):
             self.assertTrue(dr._DataReader__log.error.called)
 
     def test_fetch_as_dataframe_success(self):
+        """Method tests the fetching data as dataframe functionality success route."""
         dr = DataReader()
 
         with patch.object(dr, "_normalize", return_value=[{"a": 1}]):
@@ -151,6 +170,7 @@ class TestDataReader(unittest.TestCase):
                 mock_df.assert_called_once_with([{"a": 1}])
 
     def test_fetch_as_dataframe_normalize_type_error(self):
+        """Method tests the fetching data as dataframe functionality normalization type error route."""
         dr = DataReader()
 
         with patch.object(dr, "_normalize", side_effect=TypeError("Bad type")):
@@ -158,6 +178,7 @@ class TestDataReader(unittest.TestCase):
             self.assertIsNone(result)
 
     def test_fetch_as_dataframe_normalize_value_error(self):
+        """Method tests the fetching data as dataframe functionality normalization value error route."""
         dr = DataReader()
 
         with patch.object(dr, "_normalize", side_effect=ValueError("None")):
@@ -165,6 +186,7 @@ class TestDataReader(unittest.TestCase):
             self.assertIsNone(result)
 
     def test_fetch_as_dataframe_normalize_memory_error(self):
+        """Method tests the fetching data as dataframe functionality normalization memory error route."""
         dr = DataReader()
 
         with patch.object(dr, "_normalize", side_effect=MemoryError("OOM")):
@@ -172,6 +194,7 @@ class TestDataReader(unittest.TestCase):
             self.assertIsNone(result)
 
     def test_fetch_as_dataframe_invalid_normalized_type(self):
+        """Method tests the fetching data as dataframe functionality when normalized type is not supported."""
         dr = DataReader()
 
         with patch.object(dr, "_normalize", return_value="not a list"):
@@ -179,30 +202,40 @@ class TestDataReader(unittest.TestCase):
             self.assertIsNone(result)
 
     def test_fetch_as_dataframe_dataframe_value_error(self):
+        """Method tests the fetching data as dataframe functionality value error route."""
         dr = DataReader()
 
         with patch.object(dr, "_normalize", return_value=[{"a": 1}]):
-            with patch("src.core.datareader.pd.DataFrame", side_effect=ValueError("Bad DF")):
+            with patch(
+                "src.core.datareader.pd.DataFrame", side_effect=ValueError("Bad DF")
+            ):
                 result = dr.fetch_as_dataframe("dummy")
                 self.assertIsNone(result)
 
     def test_fetch_as_dataframe_dataframe_type_error(self):
+        """Method tests the fetching data as dataframe functionality type error route."""
         dr = DataReader()
 
         with patch.object(dr, "_normalize", return_value=[{"a": 1}]):
-            with patch("src.core.datareader.pd.DataFrame", side_effect=TypeError("Bad DF")):
+            with patch(
+                "src.core.datareader.pd.DataFrame", side_effect=TypeError("Bad DF")
+            ):
                 result = dr.fetch_as_dataframe("dummy")
                 self.assertIsNone(result)
 
     def test_fetch_as_dataframe_dataframe_memory_error(self):
+        """Method tests the fetching data as dataframe functionality memory error route."""
         dr = DataReader()
 
         with patch.object(dr, "_normalize", return_value=[{"a": 1}]):
-            with patch("src.core.datareader.pd.DataFrame", side_effect=MemoryError("OOM")):
+            with patch(
+                "src.core.datareader.pd.DataFrame", side_effect=MemoryError("OOM")
+            ):
                 result = dr.fetch_as_dataframe("dummy")
                 self.assertIsNone(result)
 
     def test_fetch_as_dataframe_logs_info(self):
+        """Method tests the information logging functionality during fetching data as dataframe."""
         dr = DataReader()
         dr._DataReader__log = MagicMock()
 
@@ -215,6 +248,7 @@ class TestDataReader(unittest.TestCase):
                 )
 
     def test_fetch_as_dataframe_logs_error(self):
+        """Method tests the error logging functionality during fetching data as dataframe."""
         dr = DataReader()
         dr._DataReader__log = MagicMock()
 

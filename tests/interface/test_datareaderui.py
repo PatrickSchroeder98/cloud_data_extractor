@@ -7,10 +7,12 @@ class TestDataReaderUI(unittest.TestCase):
     """Tests for DataReaderUI."""
 
     def test_init(self):
+        """Method tests the initialization of DataReaderUI."""
         ui = DataReaderUI()
         self.assertEqual(type(ui), DataReaderUI)
 
     def test_fetch_as_dicts_success(self):
+        """Method tests fetching as dicts from DataReaderUI success route."""
         ui = DataReaderUI()
         ui._DataReaderUI__dr = MagicMock()
         ui._DataReaderUI__dr.fetch_as_dicts.return_value = [{"a": 1}]
@@ -21,6 +23,7 @@ class TestDataReaderUI(unittest.TestCase):
         ui._DataReaderUI__dr.fetch_as_dicts.assert_called_once_with("input")
 
     def test_fetch_as_dicts_none_logs_error(self):
+        """Method tests fetching as dicts from DataReaderUI failure route."""
         ui = DataReaderUI()
         ui._DataReaderUI__dr = MagicMock()
         ui._DataReaderUI__dr.fetch_as_dicts.return_value = None
@@ -34,6 +37,7 @@ class TestDataReaderUI(unittest.TestCase):
         )
 
     def test_fetch_as_dataframe_success(self):
+        """Method tests fetching as dataframe from DataReaderUI success route."""
         ui = DataReaderUI()
         ui._DataReaderUI__dr = MagicMock()
         ui._DataReaderUI__dr.fetch_as_dataframe.return_value = "DF"
@@ -44,6 +48,7 @@ class TestDataReaderUI(unittest.TestCase):
         ui._DataReaderUI__dr.fetch_as_dataframe.assert_called_once_with("input")
 
     def test_fetch_as_dataframe_none_logs_error(self):
+        """Method tests fetching as dataframe from DataReaderUI failure route."""
         ui = DataReaderUI()
         ui._DataReaderUI__dr = MagicMock()
         ui._DataReaderUI__dr.fetch_as_dataframe.return_value = None
